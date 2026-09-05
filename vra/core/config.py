@@ -54,18 +54,20 @@ class AIConfig:
     fp_threshold: float = 0.65
     validate_scope: str = "high"
     validate_limit: int = 200
+    purpose: str = "summary"
 
 
 @dataclass
 class ValidationConfig:
     """Tuning for the rule-based FP-reduction stage.
 
-    ``strict`` enables additional, probabilistic demotions: findings whose taint
-    has no attacker-relevant root (or no provenance at all) are demoted as well,
-    in addition to the provable signals that are always applied.
+    ``strict`` demotes, in addition to the provable signals that are always
+    applied, findings whose taint has no attacker-relevant root (or no
+    provenance at all). Enabled by default for aggressive FP filtering; set to
+    ``False`` for a conservative mode that only prunes provable signals.
     """
 
-    strict: bool = False
+    strict: bool = True
 
 
 @dataclass

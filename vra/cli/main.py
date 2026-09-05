@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import typer
 
+from vra.cli.ai_command import ai_app
 from vra.cli.commands import (
     analyze_command,
     analyzer_app,
@@ -43,6 +44,7 @@ app.add_typer(finding_app, name="finding")
 app.add_typer(rule_app, name="rule")
 app.add_typer(analyzer_app, name="analyzer")
 app.add_typer(config_app, name="config")
+app.add_typer(ai_app, name="ai")
 app.command("doctor")(doctor_command)
 app.command("clean")(clean_command)
 app.command("test")(test_command)

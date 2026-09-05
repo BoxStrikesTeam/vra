@@ -124,6 +124,11 @@ def analyze_command(
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Verbose output"),
     ai_enabled: bool = typer.Option(False, "--ai", help="Enable AI-assisted narrative analysis"),
     ai_model: str = typer.Option("", "--ai-model", help="Model identifier for AI analysis"),
+    ai_purpose: str = typer.Option(
+        "",
+        "--ai-purpose",
+        help="AI purpose preset (see `vra ai list`): summary, triage, advocate, remediation, report, threat, explain",
+    ),
     validate: bool = typer.Option(False, "--validate", help="Enable FP validation (rule-based + optional AI passes)"),
     drop_fp: bool = typer.Option(False, "--drop-fp", help="Exclude likely-false-positive findings from reports"),
 ):
@@ -136,6 +141,20 @@ def analyze_command(
     if ai_model:
         config.ai.enabled = True
         config.ai.model = ai_model
+    if ai_purpose:
+        from vra.ai.prompts import get_preset
+
+        try:
+            preset = get_preset(ai_purpose)
+        except ValueError as e:
+            from vra.cli.ui import console as _console
+
+            _console.print(f"[red]{e}[/red]")
+            raise typer.Exit(1)
+        config.ai.enabled = True
+        config.ai.purpose = preset.key
+        if preset.kind in ("verify", "advocate"):
+            config.ai.validate = True
     if validate:
         config.ai.validate = True
 

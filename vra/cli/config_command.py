@@ -66,14 +66,20 @@ ai:
                              # this severity receive AI validation.
   validate_limit: 200        # cap on how many top-priority findings get AI
                              # validation per run.
+  purpose: summary           # what the AI should help with; run `vra ai list`
+                             # to browse the prompt catalog. Options: summary,
+                             # triage, advocate, remediation, report, threat,
+                             # explain. Setting purpose to triage/advocate also
+                             # enables ai.validate.
 
 validation:
-  strict: false              # FP reduction: default only provable signals
-                             # (constant-bound indices, ambient-only taint,
-                             # constant formats, consumed return values, ...).
-                             # Set to true to ALSO demote findings that have no
-                             # attacker-relevant provenance at all (more
-                             # aggressive, may hide a few true positives).
+  strict: true               # FP reduction (aggressive mode, the default):
+                             # provable signals (constant-bound indices,
+                             # ambient-only taint, constant formats, consumed
+                             # return values, ...) AND findings with no
+                             # attacker-relevant provenance at all are demoted.
+                             # Set to false for a conservative mode that only
+                             # prunes the provable signals.
 
 timeout: 300                 # seconds per analyzer
 max_memory_mb: 2048

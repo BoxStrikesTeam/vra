@@ -206,14 +206,24 @@ class Orchestrator:
         if not self.config.ai.enabled:
             return None
 
-        from vra.ai.optional import create_ai_provider, run_ai_analysis
+        from vra.ai.optional import create_ai_provider
+        from vra.ai.prompts import run_purpose
 
         provider = create_ai_provider(self.config.ai)
         if getattr(provider, "provider_name", "") == "disabled":
             return None
 
-        log.info("Running AI-assisted analysis (%s)...", provider.provider_name)
-        analysis = run_ai_analysis(provider, findings, project_info)
+        purpose = (self.config.ai.purpose or "summary").strip() or "summary"
+        log.info(
+            "Running AI-assisted analysis (provider=%s, purpose=%s)...",
+            provider.provider_name,
+            purpose,
+        )
+        analysis = run_purpose(provider, purpose, findings, project_info)
+        if analysis is None:
+            # Fail-open: purpose produced no model output (or is a structured
+            # validation pass) - fall back to the deterministic template analysis.
+            analysis = provider.analyze_findings(findings, project_info)
         log.info("AI analysis complete: %d narratives", len(analysis.narratives))
         return analysis
 
