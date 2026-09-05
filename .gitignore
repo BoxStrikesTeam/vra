@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.venv/
+venv/
+build/
+
+# built .deb artifacts
+dist/
+
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Analysis workspaces / outputs (never commit project scans or secrets)
+.vra-workspace/
+workspace/
+reports/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Environment / secrets
+.env
+*.key
+*.pem

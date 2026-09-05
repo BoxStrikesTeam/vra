@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+"""Entry-point shim for the packaged VRA distribution.
+
+Adds the installed package dir to sys.path and runs the typer app. Keeping the
+app in /usr/lib/vra (rather than dist-packages) avoids Python-version conflicts
+between distributions and keeps the package fully relocatable.
+"""
+
+import os
+import sys
+
+sys.path.insert(0, "/usr/lib/vra")
+
+try:
+    from vra.cli.main import app
+except Exception:  # pragma: no cover - surface real import errors
+    import traceback
+
+    traceback.print_exc()
+    sys.exit(2)
+
+if __name__ == "__main__":
+    try:
+        app()
+    except KeyboardInterrupt:
+        sys.exit(130)

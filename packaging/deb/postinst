@@ -1,0 +1,28 @@
+#!/bin/sh
+set -e
+
+# VRA postinst: precompile bytecode and build the optional native accelerator.
+# Both steps are best-effort: VRA runs fine on the pure-Python fallback if a
+# compiler is unavailable.
+
+PKG=/usr/lib/vra
+
+if command -v python3 >/dev/null 2>&1; then
+    python3 -m compileall -q "$PKG/vra" >/dev/null 2>&1 || true
+fi
+
+if command -v cc >/dev/null 2>&1; then
+    INC=$(python3 -c 'import sysconfig; print(sysconfig.get_paths()["include"])' 2>/dev/null || true)
+    if [ -n "$INC" ] && [ -f "$PKG/vra/_native.c" ]; then
+        SUFFIX=$(python3-config --extension-suffix 2>/dev/null || echo ".abi3.so")
+        FALLBACK_SUFFIX=".cpython-$(python3 -c 'import sys; print(sys.version_info[0]*10+sys.version_info[1])' 2>/dev/null || echo 311)-$(python3 -c 'import sysconfig; print(sysconfig.get_platform())' 2>/dev/null || echo linux).so"
+        OUT="$PKG/vra/_native${SUFFIX:-$FALLBACK_SUFFIX}"
+        if cc -O2 -fPIC -shared -I"$INC" "$PKG/vra/_native.c" -o "$OUT" 2>/dev/null; then
+            chmod 755 "$OUT"
+        else
+            rm -f "$OUT"
+        fi
+    fi
+fi
+
+exit 0

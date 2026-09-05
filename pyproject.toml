@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vra"
+version = "0.1.0"
+description = "C/C++ Automated Vulnerability Research Workbench"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "jinja2>=3.1",
+    "sqlalchemy>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "ruff",
+]
+
+[project.scripts]
+vra = "vra.cli.main:app"
+
+[tool.setuptools.packages.find]
+include = ["vra*"]
+
+[tool.setuptools]
+ext-modules = [
+    {name = "vra._native", sources = ["vra/_native.c"]},
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+"vra/reporting/html.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

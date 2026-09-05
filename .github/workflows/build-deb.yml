@@ -1,0 +1,56 @@
+name: build-deb
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends dpkg-dev build-essential python3-dev
+          python -m pip install --quiet setuptools wheel
+
+      - name: Smoke test (lint + unit tests)
+        run: |
+          python -m pip install -e ".[dev]"
+          ruff check vra tests
+          python -m pytest tests/unit -q
+
+      - name: Build .deb
+        id: deb
+        run: |
+          packaging/build_deb.sh "$PWD/dist"
+          ls -la dist/
+
+      - name: Verify package contents
+        run: |
+          dpkg-deb -I dist/*.deb | head -20
+          dpkg-deb -c dist/*.deb | grep -E "usr/bin/vra|usr/lib/vra/vra/_native.c|DEBIAN" | head
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vra-deb
+          path: dist/*.deb
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.deb

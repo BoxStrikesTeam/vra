@@ -1,0 +1,60 @@
+# VRA example configuration
+# Copy to your project root as `vra.yaml` to customize analysis.
+
+analysis:
+  profile: standard          # quick | standard | deep
+
+analyzers:
+  clang_tidy: true
+  clang_analyzer: true
+  codeql: true
+  semgrep: true
+  cppcheck: true
+  flawfinder: false
+  sanitizer: false           # enable to attempt ASan/UBSan build+run
+
+rules:
+  memory:
+    use_after_free: true
+    double_free: true
+    buffer_overflow: true
+    integer_overflow: true
+    memory_leak: true
+  logic:
+    null_deref: true
+    unchecked_return: true
+    resource_lifecycle: true
+  input:
+    unchecked_length: true
+    unsafe_deserialization: true
+    untrusted_input: true
+
+ai:
+  enabled: false             # master switch for AI narratives (or pass --ai)
+  provider: local
+  model: ""                  # free-text model label (used in logs & reports)
+
+  # model_command runs your LLM as a subprocess. The prompt is sent on stdin
+  # and the model's answer is read from stdout, so the command must support
+  # pipe mode (Ollama does). Examples:
+  #
+  #   model_command: "ollama run llama3.1"
+  #   model_command: "ollama run qwen2.5"
+  #
+  # If empty, narratives fall back to the built-in templates and the AI
+  # validation passes are skipped (rule-based validation still works).
+  model_command: ""
+  api_key: ""                # reserved for future remote providers
+
+  validate: false            # enable the AI validation passes (verifier +
+                             # devil's advocate). Requires model_command.
+  devil_advocate: true       # Pass-2: try to disprove findings that survive
+                             # the AI verifier.
+  fp_threshold: 0.65         # confidence below this after AI review -> likely FP
+  validate_scope: high       # high | medium | all
+  validate_limit: 200        # max findings that receive AI validation per run
+
+timeout: 300                 # seconds per analyzer
+max_memory_mb: 2048
+parallel_analyzers: true
+log_level: INFO

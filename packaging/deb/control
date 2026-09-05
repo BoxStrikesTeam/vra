@@ -1,0 +1,18 @@
+Package: vra
+Version: 0.1.0
+Section: devel
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.11), python3-yaml, python3-pydantic (>= 2), python3-sqlalchemy (>= 2), python3-jinja2 (>= 3.1), python3-rich (>= 13), python3-typer (>= 0.9)
+Recommends: clang, cppcheck, semgrep
+Maintainer: VRA Developers <dev@vra.local>
+Homepage: https://github.com/vra/vra
+Description: C/C++ Automated Vulnerability Research Workbench
+ Multi-stage analysis pipeline for C/C++ codebases: project inspection,
+ build-system detection, static analyzers, a regex/taint rule engine with a
+ structural (rule-based) false-positive-reduction layer, optional LLM-backed
+ review, and HTML/Markdown/JSON report generation.
+ .
+ The native C accelerator (vra._native) is compiled automatically at install
+ time when a C compiler is available; the pure-Python fallback is used
+ otherwise.
